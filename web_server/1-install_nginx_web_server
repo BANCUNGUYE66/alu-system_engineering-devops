@@ -8,8 +8,10 @@ apt-get update -y
 apt-get install nginx -y
 
 # Create a custom index.html file
-# This will overwrite the default Nginx page
-echo "Holberton School for the win!" > /var/www/html/index.html
+# Using 'cat' with a 'here document' is a more reliable way to write the file
+cat << 'EOF' > /var/www/html/index.html
+Holberton School for the win!
+EOF
 
 # Restart the Nginx service to apply changes
 # Using init.d as systemctl is not allowed
