@@ -7,14 +7,18 @@ apt-get update -y
 # Install nginx (if not already installed)
 apt-get install nginx -y
 
-# Create a custom index.html file
-# Using 'cat' with a 'here document' is a more reliable way to write the file
-cat << 'EOF' > /var/www/html/index.html
-Holberton School for the win!
-EOF
+# Define the custom content
+CONTENT="Holberton School for the win!"
+
+# Overwrite the default Nginx index.html file
+echo "$CONTENT" > /var/www/html/index.html
+
+# ALSO overwrite the default .nginx-debian.html file, just in case
+# Nginx is configured to look for this file first.
+echo "$CONTENT" > /var/www/html/index.nginx-debian.html
 
 # Restart the Nginx service to apply changes
-# Using init.d as systemctl is not allowed
-/etc/init.d/nginx restart
+# Using 'service' which is the standard wrapper for init.d scripts
+service nginx restart
 
 exit 0
