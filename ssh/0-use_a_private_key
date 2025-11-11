@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Connects to a server using a specific private key and user
+# This script connects to a server using the private key ~/.ssh/school
 
-ssh -i ~/.ssh/school ubuntu@$1
-
+ssh -i ~/.ssh/school ubuntu@3.87.223.242
 
