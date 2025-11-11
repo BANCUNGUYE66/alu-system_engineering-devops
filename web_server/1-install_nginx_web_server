@@ -4,14 +4,15 @@
 # Update the package index
 apt-get update -y
 
-# Install nginx
+# Install nginx (if not already installed)
 apt-get install nginx -y
 
 # Create a custom index.html file
 # This will overwrite the default Nginx page
 echo "Holberton School for the win!" > /var/www/html/index.html
 
-# Start the Nginx service using the init.d script (as systemctl is not allowed)
-/etc/init.d/nginx start
+# Restart the Nginx service to apply changes
+# Using init.d as systemctl is not allowed
+/etc/init.d/nginx restart
 
 exit 0
