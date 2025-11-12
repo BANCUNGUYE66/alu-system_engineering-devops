@@ -34,4 +34,9 @@ EOF
 # Restart Nginx to apply all changes
 service nginx restart
 
+# --- THIS IS THE FIX ---
+# Add a 2-second pause to allow Nginx to fully restart
+# before the checker runs curl. This prevents a "race condition".
+sleep 2
+
 exit 0
