@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# This script installs and configures Nginx, ensuring all directories exist.
+# This script installs, configures, and restarts Nginx to serve a custom page.
 
 # Set to non-interactive to prevent apt-get from asking questions
 export DEBIAN_FRONTEND=noninteractive
@@ -8,18 +8,30 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install nginx -y
 
-# --- THIS IS THE FIX ---
-# Create the /var/www/html directory if it does not exist
-# Your error log "No such file or directory" proves this is needed.
+# Create the /var/www/html directory
 mkdir -p /var/www/html
 
-# Create the new index.html file
+# Create the custom index.html file
 echo "Holberton School" > /var/www/html/index.html
-    
-# Just in case, also overwrite the other default file
-echo "Holberton School" > /var/www/html/index.nginx-debian.html
 
-# Restart Nginx
+# Overwrite the default Nginx config file to ensure it serves our page.
+cat << 'EOF' > /etc/nginx/sites-available/default
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm;
+
+    server_name _;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+EOF
+
+# Restart Nginx to apply all changes
 service nginx restart
 
 exit 0
