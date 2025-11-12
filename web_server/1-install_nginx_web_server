@@ -1,25 +1,47 @@
 #!/usr/bin/env bash
-# This script installs and configures Nginx to serve a custom page on port 80.
+# This script installs, configures, and restarts Nginx to serve a custom page.
+# It includes a self-check loop to prevent race conditions with the checker.
+
+# NOTE: We have removed 'set -e' because it conflicts with the 'until' loop.
+
+# Set to non-interactive to prevent apt-get from asking questions
+export DEBIAN_FRONTEND=noninteractive
 
 # Update packages and install Nginx
 apt-get update -y
 apt-get install nginx -y
 
-# Define the HTML content
-CONTENT="Holberton School for the win!"
+# Create the /var/www/html directory
+mkdir -p /var/www/html
 
-# Create the new index.html file
-# Using printf is more reliable than echo
-printf "%s\n" "$CONTENT" > /var/www/html/index.html
+# Create the custom index.html file (using printf for reliability)
+printf "Holberton School\n" > /var/www/html/index.html
 
-# Also overwrite the default nginx file just in case
-printf "%s\n" "$CONTENT" > /var/www/html/index.nginx-debian.html
+# Overwrite the default Nginx config file to ensure it serves our page.
+cat << 'EOM' > /etc/nginx/sites-available/default
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.html index.htm;
+
+    server_name _;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+EOM
 
 # Restart Nginx
 service nginx restart
 
-# Add a 1-second pause to allow Nginx to fully restart
-# This helps prevent a race condition with the checker.
-sleep 1
+# --- THIS IS THE FIX ---
+# We will not let the script exit until Nginx is 100% ready.
+until curl -s http://localhost | grep -q "Holberton School"; do
+    echo "Waiting for Nginx to restart..."
+    sleep 0.5
+done
 
 exit 0
