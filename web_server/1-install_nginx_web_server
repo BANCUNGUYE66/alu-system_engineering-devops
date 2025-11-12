@@ -1,25 +1,28 @@
 #!/usr/bin/env bash
-# This script installs and configures Nginx to serve a custom page on port 80.
+# This script installs and configures Nginx to serve a custom page.
+
+# Set to non-interactive to prevent apt-get from asking questions
+export DEBIAN_FRONTEND=noninteractive
 
 # Update packages and install Nginx
 apt-get update -y
 apt-get install nginx -y
 
-# Define the HTML content
+# --- THIS IS THE FIX ---
+# Create the /var/www/html directory if it does not exist
+# The error 'No such file or directory' shows this is necessary
+mkdir -p /var/www/html
+
+# Define the custom content
 CONTENT="Holberton School for the win!"
 
 # Create the new index.html file
-# Using printf is more reliable than echo
 printf "%s\n" "$CONTENT" > /var/www/html/index.html
 
-# Also overwrite the default nginx file just in case
+# Also overwrite the other default file (index.nginx-debian.html)
 printf "%s\n" "$CONTENT" > /var/www/html/index.nginx-debian.html
 
 # Restart Nginx
 service nginx restart
-
-# Add a 1-second pause to allow Nginx to fully restart
-# This helps prevent a race condition with the checker.
-sleep 1
 
 exit 0
