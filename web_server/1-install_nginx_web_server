@@ -2,8 +2,7 @@
 # This script installs, configures, and restarts Nginx to serve a custom page.
 # It includes a self-check loop to prevent race conditions with the checker.
 
-# Exit immediately if any command fails
-set -e
+# NOTE: We have removed 'set -e' because it conflicts with the 'until' loop.
 
 # Set to non-interactive to prevent apt-get from asking questions
 export DEBIAN_FRONTEND=noninteractive
@@ -15,8 +14,8 @@ apt-get install nginx -y
 # Create the /var/www/html directory
 mkdir -p /var/www/html
 
-# Create the custom index.html file
-echo "Holberton School" > /var/www/html/index.html
+# Create the custom index.html file (using printf for reliability)
+printf "Holberton School\n" > /var/www/html/index.html
 
 # Overwrite the default Nginx config file to ensure it serves our page.
 cat << 'EOF' > /etc/nginx/sites-available/default
