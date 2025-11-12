@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 # This script installs, configures, and restarts Nginx to serve a custom page.
+# It includes a self-check loop to prevent race conditions with the checker.
+
+# Exit immediately if any command fails
+set -e
 
 # Set to non-interactive to prevent apt-get from asking questions
 export DEBIAN_FRONTEND=noninteractive
@@ -31,12 +35,14 @@ server {
 }
 EOF
 
-# Restart Nginx to apply all changes
+# Restart Nginx
 service nginx restart
 
 # --- THIS IS THE FIX ---
-# Add a 2-second pause to allow Nginx to fully restart
-# before the checker runs curl. This prevents a "race condition".
-sleep 2
+# We will not let the script exit until Nginx is 100% ready.
+until curl -s http://localhost | grep -q "Holberton School"; do
+    echo "Waiting for Nginx to restart..."
+    sleep 0.5
+done
 
 exit 0
