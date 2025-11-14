@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Installs and configures Nginx to serve a custom page.
+
+# Update package lists
+apt-get update -y
+
+# Install Nginx
+apt-get install -y nginx
+
+# Create a simple custom index.html page
+echo "Holberton School for the win!" > /var/www/html/index.html
+
+# Restart the Nginx service (using 'service' as 'systemctl' is not allowed)
+service nginx restart
+
+exit 0
+```
+
+---
+
+### **Part 1: How to Submit Your Answer File (in VS Code)**
+
+This is for the checker.
+
+1.  **Create the file:** In your VS Code project, inside the `web_server` folder, create a new file named `1-install_nginx_web_server`.
+2.  **Paste the code:** Copy the Bash script above and paste it into your new file. Save it.
+3.  **Make it executable:** In your VS Code terminal, run:
+    ```bash
+    chmod +x web_server/1-install_nginx_web_server
+    ```
+4.  **Push to GitHub:** Use your terminal to add, commit, and push this new file.
+    ```bash
+    git add web_server/1-install_nginx_web_server
+    git commit -m "Add Task 1: Install Nginx script"
+    git pull origin main
+    git push origin main
+    ```
+
+---
+
+### **Part 2: How to Configure Your `web-01` Server**
+
+This is the second part of your grade. You must *also* configure your live server.
+
+1.  **Log in to your server** (using the IP from your project page):
+    ```bash
+    ssh ubuntu@3.87.223.242
+    ```
+2.  **Run the commands** from the script one by one, using `sudo` because you are the `ubuntu` user:
+    ```bash
+    # 1. Update packages
+    sudo apt-get update -y
+    
+    # 2. Install Nginx
+    sudo apt-get install -y nginx
+    
+    # 3. Create the custom page
+    echo "Holberton School for the win!" | sudo tee /var/www/html/index.html
+    
+    # 4. Restart Nginx
+    sudo service nginx restart
