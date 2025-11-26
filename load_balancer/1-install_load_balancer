@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# This script installs and configures HAproxy to distribute traffic using roundrobin
+# and sets up health checks for web-01 and web-02.
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+echo "--- Installing HAproxy ---"
+apt-get update -y
+apt-get install -y haproxy
+
+# --- HAproxy Configuration ---
+
+echo "--- Configuring HAproxy for roundrobin load balancing ---"
+
+# We use cat to overwrite the default configuration file (/etc/haproxy/haproxy.cfg)
+cat << EOF_HAPROXY > /etc/haproxy/haproxy.cfg
+global
+    log /dev/log    daemon
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+
+defaults
+    log global
+    mode http
+    option httplog
+    option dontlognull
+    timeout connect 5000ms
+    timeout client 50000ms
+    timeout server 50000ms
+
+frontend http_front
+    bind *:80
+    default_backend http_back
+
+backend http_back
+    mode http
+    balance roundrobin
+    # --- Backend Servers (REPLACE THESE PLACEHOLDERS) ---
+    # The 'check' directive ensures HAproxy knows if the server is healthy
+    server web01 WEB_01_IP:80 check
+    server web02 WEB_02_IP:80 check
+EOF_HAPROXY
+
+# --- Restart and Enable Service ---
+
+echo "--- Restarting HAproxy service ---"
+
+# This command ensures HAproxy can be managed via an init script, satisfying the requirement.
+/etc/init.d/haproxy restart
+
+echo "HAproxy installed and configured. Check is complete."
