@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# This script ensures Nginx is running and listening on port 80 by restarting the service.
+
+# Restart Nginx forcefully to stop any conflict and re-bind to port 80
+service nginx restart
