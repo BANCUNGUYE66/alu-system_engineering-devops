@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# This script configures UFW to redirect traffic from public port 8080/TCP to internal port 80/TCP.
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+echo "--- Updating system packages and installing ufw ---"
+apt-get update -y
+apt-get install -y ufw
+
+# --- 1. Enable IP Forwarding ---
+# This is necessary for routing/forwarding packets
+sed -i 's/DEFAULT_FORWARD_POLICY="DROP"/DEFAULT_FORWARD_POLICY="ACCEPT"/' /etc/default/ufw
+
+# --- 2. Configure NAT/DNAT Rule in before.rules ---
+echo "--- Configuring UFW for Port Forwarding (8080 -> 80) ---"
+
+# We must inject the NAT rule into the custom rules file (/etc/ufw/before.rules)
+RULES_FILE="/etc/ufw/before.rules"
+
+# 2a. Add the NAT table header
+# We use a pattern match to insert the NAT table definition right after the *filter table
+sed -i '/^# Don'"'"'t delete these required lines, otherwise there will be errors/a *nat\n:PREROUTING ACCEPT [0:0]' "$RULES_FILE"
+
+# 2b. Add the DNAT rule itself (Redirects 8080 to 80)
+# -A PREROUTING: Append to the PREROUTING chain
+sed -i '/:PREROUTING ACCEPT [0:0]/a -A PREROUTING -p tcp --dport 8080 -j REDIRECT --to-port 80' "$RULES_FILE"
+
+# 2c. Add the commit/end line for the NAT table
+sed -i '/:PREROUTING ACCEPT [0:0]/a COMMIT' "$RULES_FILE"
+
+# --- 3. UFW Access Rule (Allow incoming on 8080) ---
+# We must allow the external traffic to hit port 8080 so the forwarding can occur.
+ufw allow 8080/tcp
+
+# --- 4. Reload/Restart UFW ---
+echo "--- Restarting UFW to apply port forwarding rule ---"
+echo "y" | ufw enable
+ufw status
+
+echo "Port forwarding 8080/TCP to 80/TCP complete."
