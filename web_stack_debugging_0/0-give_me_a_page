@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# This script injects the required "Hello Holberton" message into the Apache default page
+# and ensures the service is running.
+
+# Command 1: Inject the required content into the default index file
+echo "Hello Holberton" > /var/www/html/index.html
+
+# Command 2: Restart the Apache service (often named 'apache2') to load the new content
+service apache2 restart
