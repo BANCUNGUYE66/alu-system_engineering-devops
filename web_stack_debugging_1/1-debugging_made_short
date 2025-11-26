@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# This script fixes Nginx connectivity while making the service report as stopped.
+service nginx stop
+/usr/sbin/nginx
