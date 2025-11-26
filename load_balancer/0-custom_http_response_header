@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# This script installs Nginx and configures a custom HTTP response header (X-Served-By)
+# on the web server, using the server's hostname as the value.
+
+# Install Nginx if not already installed (Ubuntu 20.04 assumed)
+apt-get update -y
+apt-get install -y nginx
+
+# Add the custom header to the Nginx configuration.
+# We use 'sed' to insert the 'add_header' directive into the 'http' block, 
+# right before the end brace '}' of the block.
+# We use the "$HOSTNAME" variable, which holds the server's hostname (e.g., [STUDENT_ID]-web-01).
+sed -i '/^http {/a \        add_header X-Served-By $HOSTNAME;' /etc/nginx/nginx.conf
+
+# Restart Nginx using the init.d script (since systemctl might not be allowed in all checks)
+/etc/init.d/nginx restart
